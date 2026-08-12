@@ -1,0 +1,23 @@
+.section {
+  padding: 20px 0 0;
+}
+
+.sectionTitle {
+  margin: 0 16px 10px;
+  padding-bottom: 8px;
+  border-bottom: 2.5px solid var(--color-border-strong);
+  font-size: 20px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.loading {
+  padding: 48px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.bottomSpacer {
+  height: 100px;
+}

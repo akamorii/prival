@@ -1,0 +1,27 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-bg);
+  padding: 8px 12px;
+  gap: 8px;
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.chip {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-chip-bg);
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.chipActive {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}

@@ -1,0 +1,33 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.new {
+  background: var(--color-surface);
+  color: #111111;
+}
+
+.accepted {
+  background: var(--color-chip-bg);
+  color: #111111;
+  border-style: dashed;
+}
+
+.ready {
+  background: #111111;
+  color: #ffffff;
+}
+
+.closed {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}

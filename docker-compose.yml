@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_ADMIN_PASSCODE: ${VITE_ADMIN_PASSCODE:-privaladmin}
+    ports:
+      - '${FRONTEND_PORT:-8080}:80'
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------
+  # Задел на будущее. Сервисы ниже понадобятся, когда появится бэкенд:
+  # заказы в БД, отправка писем, кухонный экран, оплата и т.д.
+  # Раскомментируйте по мере готовности соответствующего кода.
+  # ---------------------------------------------------------------------
+
+  # backend:
+  #   build:
+  #     context: ./backend
+  #   environment:
+  #     DATABASE_URL: postgres://privalcafe:privalcafe@db:5432/privalcafe
+  #     SMTP_HOST: mailhog
+  #     SMTP_PORT: 1025
+  #     ORDER_NOTIFY_EMAIL: Bigmadmuffin@yandex.ru
+  #   ports:
+  #     - '${BACKEND_PORT:-3000}:3000'
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: privalcafe
+  #     POSTGRES_PASSWORD: privalcafe
+  #     POSTGRES_DB: privalcafe
+  #   volumes:
+  #     - db-data:/var/lib/postgresql/data
+  #   ports:
+  #     - '${DB_PORT:-5432}:5432'
+  #   restart: unless-stopped
+
+  # mailhog: # локальный SMTP для проверки писем о заказах в разработке
+  #   image: mailhog/mailhog
+  #   ports:
+  #     - '8025:8025'
+
+# volumes:
+#   db-data:

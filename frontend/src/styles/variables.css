@@ -1,0 +1,29 @@
+:root {
+  --color-bg: #f2f1ee;
+  --color-surface: #ffffff;
+  --color-text: #111111;
+  --color-text-muted: #6b6b6b;
+  --color-border: #d6d4cf;
+  --color-border-strong: #111111;
+  --color-accent: #111111;
+  --color-accent-dark: #000000;
+  --color-accent-contrast: #ffffff;
+  --color-success: #111111;
+  --color-danger: #111111;
+  --color-chip-bg: #e9e7e1;
+  --color-overlay: rgba(10, 10, 10, 0.6);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-pill: 3px;
+
+  --shadow-sm: 0 1px 0 rgba(17, 17, 17, 0.18);
+  --shadow-md: 0 4px 0 rgba(17, 17, 17, 0.16);
+  --shadow-lg: 0 -2px 0 rgba(17, 17, 17, 0.14);
+
+  --font-display: 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

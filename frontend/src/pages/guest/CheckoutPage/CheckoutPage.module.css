@@ -1,0 +1,63 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.backBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--color-chip-bg);
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.totalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  font-size: 18px;
+  font-weight: 800;
+  border-top: 2px solid var(--color-border-strong);
+  margin-top: 4px;
+}
+
+.commentLabel {
+  display: block;
+  margin: 20px 0 8px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  resize: vertical;
+}
+
+.error {
+  margin: 12px 0 0;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.submitWrap {
+  margin: 24px 0 40px;
+}

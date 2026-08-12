@@ -1,0 +1,102 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.categoryBar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+  padding-bottom: 4px;
+}
+
+.categoryChip {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-chip-bg);
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.categoryChipDelete {
+  color: var(--color-danger);
+  font-weight: 900;
+}
+
+.addCategoryForm {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.addCategoryInput {
+  width: 120px;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  font-size: 13px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 20px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--color-border-strong);
+}
+
+.dishRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.dishInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.dishName {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.dishMeta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.hiddenTag {
+  color: var(--color-danger);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.toggleBtn {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border-strong);
+  white-space: nowrap;
+}

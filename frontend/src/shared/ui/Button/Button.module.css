@@ -1,0 +1,57 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid transparent;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--color-accent);
+  border-color: var(--color-border-strong);
+  color: var(--color-accent-contrast);
+}
+
+.secondary {
+  background: var(--color-chip-bg);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.outline {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.danger {
+  background: transparent;
+  color: var(--color-danger);
+  text-decoration: underline;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.sm {
+  padding: 8px 16px;
+  font-size: 14px;
+}
