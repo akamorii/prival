@@ -19,7 +19,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-jwt-secret}
       ADMIN_PASSCODE: ${VITE_ADMIN_PASSCODE:-privaladmin}
       ENCRYPTION_KEY: '${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env, see .env.example}'
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
     ports:
       - '${BACKEND_PORT:-8000}:8000'
     depends_on:
