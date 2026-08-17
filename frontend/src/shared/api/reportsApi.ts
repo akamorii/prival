@@ -1,6 +1,5 @@
 import type { Order } from '../types';
-import { dateKey } from '../lib/format';
-import { delay, getOrdersDb } from './db';
+import { http } from './http';
 
 export interface RangeReport {
   ordersCount: number;
@@ -8,15 +7,8 @@ export interface RangeReport {
   orders: Order[];
 }
 
-export async function fetchReport(from: string, to: string): Promise<RangeReport> {
-  return delay(() => {
-    const orders = getOrdersDb().filter((o) => {
-      const key = dateKey(o.createdAt);
-      return key >= from && key <= to;
-    });
-    const total = orders.reduce((sum, o) => sum + o.total, 0);
-    return { ordersCount: orders.length, total, orders: orders.sort((a, b) => b.id - a.id) };
-  });
+export function fetchReport(from: string, to: string): Promise<RangeReport> {
+  return http.get<RangeReport>(`/api/reports?from=${from}&to=${to}`);
 }
 
 export function ordersToCsv(orders: Order[]): string {

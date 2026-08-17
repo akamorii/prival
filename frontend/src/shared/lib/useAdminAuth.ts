@@ -1,34 +1,18 @@
-import { useState } from 'react';
-import { config } from '../config/env';
+import { loginRequest } from '../api/authApi';
+import { clearAdminToken, isAdminAuthed, setAdminToken } from './adminToken';
 
-const KEY = 'privalcafe:adminAuth';
+export { isAdminAuthed };
 
-export function isAdminAuthed(): boolean {
-  return sessionStorage.getItem(KEY) === '1';
-}
-
-export function loginAdmin(passcode: string): boolean {
-  const ok = passcode === config.adminPasscode;
-  if (ok) sessionStorage.setItem(KEY, '1');
-  return ok;
+export async function loginAdmin(passcode: string): Promise<boolean> {
+  try {
+    const token = await loginRequest(passcode);
+    setAdminToken(token);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function logoutAdmin(): void {
-  sessionStorage.removeItem(KEY);
-}
-
-export function useAdminAuthState() {
-  const [authed, setAuthed] = useState(isAdminAuthed());
-  return {
-    authed,
-    login: (passcode: string) => {
-      const ok = loginAdmin(passcode);
-      if (ok) setAuthed(true);
-      return ok;
-    },
-    logout: () => {
-      logoutAdmin();
-      setAuthed(false);
-    },
-  };
+  clearAdminToken();
 }

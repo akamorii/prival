@@ -1,47 +1,23 @@
 import type { CreateOrderPayload, Order, OrderStatus } from '../types';
-import { delay, getOrdersDb, nextOrderId, setOrdersDb } from './db';
+import { ApiError, http } from './http';
 
-function notifyNewOrder(order: Order): void {
-  // В продакшене здесь backend отправит письмо на Bigmadmuffin@yandex.ru.
-  // Сбой уведомления не должен влиять на уже сохранённый заказ.
-  console.info('[order notification]', order);
+export function createOrder(payload: CreateOrderPayload): Promise<Order> {
+  return http.post<Order>('/api/orders', payload);
 }
 
-export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
-  const total = payload.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const order: Order = {
-    id: nextOrderId(),
-    tableNumber: payload.tableNumber,
-    items: payload.items,
-    comment: payload.comment,
-    total,
-    status: 'new',
-    createdAt: new Date().toISOString(),
-  };
-
-  const orders = getOrdersDb();
-  orders.push(order);
-  setOrdersDb(orders);
-
-  notifyNewOrder(order);
-
-  return delay(() => order, 400);
-}
-
-export async function fetchOrders(): Promise<Order[]> {
-  return delay(() => [...getOrdersDb()].sort((a, b) => b.id - a.id));
+export function fetchOrders(): Promise<Order[]> {
+  return http.get<Order[]>('/api/orders');
 }
 
 export async function fetchOrder(id: number): Promise<Order | undefined> {
-  return delay(() => getOrdersDb().find((o) => o.id === id));
+  try {
+    return await http.get<Order>(`/api/orders/${id}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return undefined;
+    throw error;
+  }
 }
 
-export async function updateOrderStatus(id: number, status: OrderStatus): Promise<void> {
-  const orders = getOrdersDb();
-  const order = orders.find((o) => o.id === id);
-  if (order) {
-    order.status = status;
-    setOrdersDb(orders);
-  }
-  return delay(() => undefined);
+export function updateOrderStatus(id: number, status: OrderStatus): Promise<Order> {
+  return http.patch<Order>(`/api/orders/${id}/status`, { status });
 }

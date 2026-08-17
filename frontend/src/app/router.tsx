@@ -10,6 +10,7 @@ import { OrdersPage } from '../pages/admin/OrdersPage/OrdersPage';
 import { MenuManagementPage } from '../pages/admin/MenuManagementPage/MenuManagementPage';
 import { TablesQrPage } from '../pages/admin/TablesQrPage/TablesQrPage';
 import { ReportsPage } from '../pages/admin/ReportsPage/ReportsPage';
+import { SettingsPage } from '../pages/admin/SettingsPage/SettingsPage';
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       { path: 'menu', element: <MenuManagementPage /> },
       { path: 'tables', element: <TablesQrPage /> },
       { path: 'reports', element: <ReportsPage /> },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
 ]);

@@ -3,48 +3,46 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
         VITE_ADMIN_PASSCODE: ${VITE_ADMIN_PASSCODE:-privaladmin}
     ports:
       - '${FRONTEND_PORT:-8080}:80'
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-privalcafe}:${DB_PASSWORD:-privalcafe}@db:5432/${DB_NAME:-privalcafe}
+      JWT_SECRET: ${JWT_SECRET:-change-me-jwt-secret}
+      ADMIN_PASSCODE: ${VITE_ADMIN_PASSCODE:-privaladmin}
+      ENCRYPTION_KEY: '${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env, see .env.example}'
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+    ports:
+      - '${BACKEND_PORT:-8000}:8000'
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-privalcafe}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-privalcafe}
+      POSTGRES_DB: ${DB_NAME:-privalcafe}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT:-5432}:5432'
     restart: unless-stopped
 
   # ---------------------------------------------------------------------
-  # Задел на будущее. Сервисы ниже понадобятся, когда появится бэкенд:
-  # заказы в БД, отправка писем, кухонный экран, оплата и т.д.
-  # Раскомментируйте по мере готовности соответствующего кода.
+  # Задел на будущее (см. ТЗ п.20): онлайн-оплата, Telegram-уведомления,
+  # кухонный экран (KDS), печать чеков, интеграция с кассой — добавляются
+  # отдельными сервисами здесь, когда придёт их очередь.
   # ---------------------------------------------------------------------
 
-  # backend:
-  #   build:
-  #     context: ./backend
-  #   environment:
-  #     DATABASE_URL: postgres://privalcafe:privalcafe@db:5432/privalcafe
-  #     SMTP_HOST: mailhog
-  #     SMTP_PORT: 1025
-  #     ORDER_NOTIFY_EMAIL: Bigmadmuffin@yandex.ru
-  #   ports:
-  #     - '${BACKEND_PORT:-3000}:3000'
-  #   depends_on:
-  #     - db
-  #   restart: unless-stopped
-
-  # db:
-  #   image: postgres:16-alpine
-  #   environment:
-  #     POSTGRES_USER: privalcafe
-  #     POSTGRES_PASSWORD: privalcafe
-  #     POSTGRES_DB: privalcafe
-  #   volumes:
-  #     - db-data:/var/lib/postgresql/data
-  #   ports:
-  #     - '${DB_PORT:-5432}:5432'
-  #   restart: unless-stopped
-
-  # mailhog: # локальный SMTP для проверки писем о заказах в разработке
-  #   image: mailhog/mailhog
-  #   ports:
-  #     - '8025:8025'
-
-# volumes:
-#   db-data:
+volumes:
+  db-data:

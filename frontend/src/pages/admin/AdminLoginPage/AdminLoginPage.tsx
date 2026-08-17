@@ -8,14 +8,18 @@ export function AdminLoginPage() {
   const navigate = useNavigate();
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (isAdminAuthed()) {
     return <Navigate to="/admin/orders" replace />;
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (loginAdmin(passcode)) {
+    setSubmitting(true);
+    const ok = await loginAdmin(passcode);
+    setSubmitting(false);
+    if (ok) {
       navigate('/admin/orders');
     } else {
       setError(true);
@@ -39,8 +43,8 @@ export function AdminLoginPage() {
           }}
         />
         {error && <span className={styles.error}>Неверный код доступа</span>}
-        <Button type="submit" fullWidth>
-          Войти
+        <Button type="submit" fullWidth disabled={submitting}>
+          {submitting ? 'Входим…' : 'Войти'}
         </Button>
       </form>
     </div>

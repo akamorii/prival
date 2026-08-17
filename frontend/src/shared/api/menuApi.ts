@@ -1,55 +1,30 @@
 import type { Category, Dish } from '../types';
-import { delay, getCategoriesDb, getDishesDb, setCategoriesDb, setDishesDb } from './db';
+import { http } from './http';
 
-export async function fetchCategories(): Promise<Category[]> {
-  return delay(() => [...getCategoriesDb()].sort((a, b) => a.sortOrder - b.sortOrder));
+export function fetchCategories(): Promise<Category[]> {
+  return http.get<Category[]>('/api/categories');
 }
 
-export async function fetchDishes(): Promise<Dish[]> {
-  return delay(() => getDishesDb());
+export function fetchDishes(): Promise<Dish[]> {
+  return http.get<Dish[]>('/api/dishes');
 }
 
-export async function saveDish(dish: Dish): Promise<Dish> {
-  const dishes = getDishesDb();
-  const index = dishes.findIndex((d) => d.id === dish.id);
-  if (index >= 0) {
-    dishes[index] = dish;
-  } else {
-    dishes.push(dish);
-  }
-  setDishesDb(dishes);
-  return delay(() => dish);
+export function saveDish(dish: Dish): Promise<Dish> {
+  return http.put<Dish>(`/api/dishes/${dish.id}`, dish);
 }
 
-export async function deleteDish(dishId: string): Promise<void> {
-  setDishesDb(getDishesDb().filter((d) => d.id !== dishId));
-  return delay(() => undefined);
+export function deleteDish(dishId: string): Promise<void> {
+  return http.delete<void>(`/api/dishes/${dishId}`);
 }
 
-export async function setDishAvailability(dishId: string, available: boolean): Promise<void> {
-  const dishes = getDishesDb();
-  const dish = dishes.find((d) => d.id === dishId);
-  if (dish) {
-    dish.available = available;
-    setDishesDb(dishes);
-  }
-  return delay(() => undefined);
+export function setDishAvailability(dishId: string, available: boolean): Promise<Dish> {
+  return http.patch<Dish>(`/api/dishes/${dishId}/availability`, { available });
 }
 
-export async function saveCategory(category: Category): Promise<Category> {
-  const categories = getCategoriesDb();
-  const index = categories.findIndex((c) => c.id === category.id);
-  if (index >= 0) {
-    categories[index] = category;
-  } else {
-    categories.push(category);
-  }
-  setCategoriesDb(categories);
-  return delay(() => category);
+export function saveCategory(category: Category): Promise<Category> {
+  return http.put<Category>(`/api/categories/${category.id}`, category);
 }
 
-export async function deleteCategory(categoryId: string): Promise<void> {
-  setCategoriesDb(getCategoriesDb().filter((c) => c.id !== categoryId));
-  setDishesDb(getDishesDb().filter((d) => d.categoryId !== categoryId));
-  return delay(() => undefined);
+export function deleteCategory(categoryId: string): Promise<void> {
+  return http.delete<void>(`/api/categories/${categoryId}`);
 }

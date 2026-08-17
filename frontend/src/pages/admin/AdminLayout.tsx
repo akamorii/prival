@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/admin/menu', label: 'Меню' },
   { to: '/admin/tables', label: 'Столы / QR' },
   { to: '/admin/reports', label: 'Отчёты' },
+  { to: '/admin/settings', label: 'Настройки' },
 ];
 
 export function AdminLayout() {
