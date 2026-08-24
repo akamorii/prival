@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Category, Dish } from '../../../shared/types';
 import { Button } from '../../../shared/ui/Button/Button';
+import { ImageDropzone } from './ImageDropzone';
 import styles from './DishFormModal.module.css';
 
 interface DishFormModalProps {
@@ -95,12 +96,8 @@ export function DishFormModal({ dish, categories, onSave, onDelete, onClose }: D
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Фото (URL, необязательно)</label>
-          <input
-            className={styles.input}
-            value={draft.photoUrl ?? ''}
-            onChange={(e) => update('photoUrl', e.target.value)}
-          />
+          <label className={styles.label}>Фото (необязательно)</label>
+          <ImageDropzone value={draft.photoUrl} onChange={(url) => update('photoUrl', url)} />
         </div>
 
         <div className={styles.checkboxRow}>

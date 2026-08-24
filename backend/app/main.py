@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from .config import settings
-from .routers import auth, categories, dishes, orders, reports, settings as settings_router
+from .routers import auth, categories, dishes, orders, reports, settings as settings_router, uploads
+from .routers.uploads import UPLOAD_DIR
 
 app = FastAPI(title="Привал API")
 
@@ -20,6 +22,9 @@ app.include_router(dishes.router)
 app.include_router(orders.router)
 app.include_router(reports.router)
 app.include_router(settings_router.router)
+app.include_router(uploads.router)
+
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 
 @app.get("/api/health")

@@ -9,3 +9,4 @@ pydantic-settings==2.7.0
 python-jose[cryptography]==3.3.0
 cryptography==44.0.0
 python-dotenv==1.0.1
+python-multipart==0.0.20

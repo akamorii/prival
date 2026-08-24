@@ -22,6 +22,8 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
     ports:
       - '${BACKEND_PORT:-8000}:8000'
+    volumes:
+      - uploads-data:/app/uploads
     depends_on:
       - db
     restart: unless-stopped
@@ -46,3 +48,4 @@ services:
 
 volumes:
   db-data:
+  uploads-data:
