@@ -41,9 +41,11 @@ echo ""
 echo "Проверяю, что стек запущен и сайт отвечает по HTTP…"
 docker compose up -d frontend backend db
 
-if ! curl -sf -o /dev/null "http://${DOMAIN}/.well-known/acme-challenge/" -m 10; then
+# Без -f: любой HTTP-ответ (даже 404 — файла challenge'а ещё нет, это нормально) значит,
+# что домен резолвится сюда и порт 80 открыт. Ошибка curl'а здесь — это именно обрыв соединения.
+if ! curl -s -o /dev/null "http://${DOMAIN}/.well-known/acme-challenge/" -m 10; then
   echo ""
-  echo "ВНИМАНИЕ: http://${DOMAIN}/.well-known/acme-challenge/ не отвечает ожидаемо."
+  echo "ВНИМАНИЕ: http://${DOMAIN}/.well-known/acme-challenge/ не отвечает вообще (не 404, а обрыв соединения)."
   echo "Убедитесь, что DNS ${DOMAIN} и ${WWW_DOMAIN} уже указывает на этот сервер и порт 80 открыт наружу."
   read -r -p "Продолжить всё равно? (y/N): " CONTINUE
   [[ "${CONTINUE:-}" == "y" || "${CONTINUE:-}" == "Y" ]] || exit 1
@@ -51,7 +53,9 @@ fi
 
 echo ""
 echo "Запрашиваю сертификат для ${DOMAIN} и ${WWW_DOMAIN}…"
-docker compose run --rm certbot certonly \
+# --entrypoint certbot обязателен: у сервиса certbot в docker-compose.yml entrypoint
+# переопределён под цикл автопродления, иначе наша команда certonly будет проигнорирована.
+docker compose run --rm --entrypoint certbot certbot certonly \
   --webroot -w /var/www/certbot \
   -d "${DOMAIN}" -d "${WWW_DOMAIN}" \
   --email "${CERTBOT_EMAIL}" --agree-tos --no-eff-email \
