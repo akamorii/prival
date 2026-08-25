@@ -42,6 +42,20 @@ ask() {
   printf -v "$var_name" '%s' "$value"
 }
 
+# Значения по умолчанию для повторного запуска: если .env уже существует, подхватываем из него
+# DB_* и секреты — их менять самовольно нельзя (см. ниже, почему).
+PREV_FRONTEND_PORT="80"
+PREV_FRONTEND_SSL_PORT="443"
+PREV_BACKEND_PORT="8000"
+PREV_DB_PORT="5432"
+PREV_DB_USER="privalcafe"
+PREV_DB_PASSWORD=""
+PREV_DB_NAME="privalcafe"
+PREV_ADMIN_PASSCODE=""
+PREV_CERTBOT_EMAIL=""
+PREV_JWT_SECRET=""
+PREV_ENCRYPTION_KEY=""
+
 if [ -f "$ENV_FILE" ]; then
   echo ""
   echo "Файл .env уже существует."
@@ -54,6 +68,24 @@ if [ -f "$ENV_FILE" ]; then
     echo "Готово. Текущие настройки — в файле .env."
     exit 0
   fi
+
+  # Подхватываем прежние значения ДО перезаписи файла.
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+  PREV_FRONTEND_PORT="${FRONTEND_PORT:-80}"
+  PREV_FRONTEND_SSL_PORT="${FRONTEND_SSL_PORT:-443}"
+  PREV_BACKEND_PORT="${BACKEND_PORT:-8000}"
+  PREV_DB_PORT="${DB_PORT:-5432}"
+  PREV_DB_USER="${DB_USER:-privalcafe}"
+  PREV_DB_PASSWORD="${DB_PASSWORD:-}"
+  PREV_DB_NAME="${DB_NAME:-privalcafe}"
+  PREV_ADMIN_PASSCODE="${ADMIN_PASSCODE:-}"
+  PREV_CERTBOT_EMAIL="${CERTBOT_EMAIL:-}"
+  PREV_JWT_SECRET="${JWT_SECRET:-}"
+  PREV_ENCRYPTION_KEY="${ENCRYPTION_KEY:-}"
+
   cp "$ENV_FILE" "${ENV_FILE}.bak.$(date +%s)"
   echo "Старый .env сохранён рядом как резервная копия."
 fi
@@ -61,41 +93,62 @@ fi
 echo ""
 echo "Порты на хосте. Для обычной работы под доменом prival.pro (https://prival.pro без порта в адресе)"
 echo "оставьте порт фронтенда 80 — жмите Enter. Меняйте только если порт занят другим сервисом на сервере."
-ask FRONTEND_PORT "Порт фронтенда (HTTP)" "80"
-ask FRONTEND_SSL_PORT "Порт фронтенда (HTTPS)" "443"
+ask FRONTEND_PORT "Порт фронтенда (HTTP)" "$PREV_FRONTEND_PORT"
+ask FRONTEND_SSL_PORT "Порт фронтенда (HTTPS)" "$PREV_FRONTEND_SSL_PORT"
 
 echo ""
 echo "Порт бэкенда (API). Наружу не обязателен — nginx проксирует /api внутри docker-сети,"
 echo "открыт только для удобства прямого захода в /docs при отладке."
-ask BACKEND_PORT "Порт бэкенда" "8000"
+ask BACKEND_PORT "Порт бэкенда" "$PREV_BACKEND_PORT"
 
 echo ""
 echo "Порт PostgreSQL. Наружу его открывать не обязательно, но при желании можно сменить (например, если 5432 занят другим сервисом на сервере)."
-ask DB_PORT "Порт PostgreSQL" "5432"
+ask DB_PORT "Порт PostgreSQL" "$PREV_DB_PORT"
 
 echo ""
 echo "Логин и пароль для базы данных PostgreSQL. Используются только внутри docker compose, между контейнерами —"
-echo "наружу не торчат. Можно оставить предложенные значения (пароль сгенерирован случайно)."
-ask DB_USER "Имя пользователя БД" "privalcafe"
-ask DB_PASSWORD "Пароль БД" "$(openssl rand -hex 16)"
-ask DB_NAME "Имя базы данных" "privalcafe"
+echo "наружу не торчат."
+if [ -n "$PREV_DB_PASSWORD" ]; then
+  echo "У вас уже есть развёрнутая база — оставляю прежние логин/пароль (жмите Enter). ВАЖНО: Postgres задаёт"
+  echo "пароль только при первом запуске на пустых данных — если впишете сюда новый, база откажет в подключении,"
+  echo "пока вручную не смените пароль ещё и в самой Postgres (ALTER USER ...) или не пересоздадите volume."
+else
+  echo "Можно оставить предложенные значения (пароль сгенерирован случайно)."
+fi
+ask DB_USER "Имя пользователя БД" "$PREV_DB_USER"
+ask DB_PASSWORD "Пароль БД" "${PREV_DB_PASSWORD:-$(openssl rand -hex 16)}"
+ask DB_NAME "Имя базы данных" "$PREV_DB_NAME"
 
 echo ""
 echo "Код доступа в админ-панель (/admin) — его вводит сотрудник кафе при входе в раздел «Заказы», «Меню» и т.д."
-echo "Придумайте свой, не оставляйте пустым и не используйте значение из тестового окружения."
-ask ADMIN_PASSCODE "Код доступа в админку"
+if [ -n "$PREV_ADMIN_PASSCODE" ]; then
+  ask ADMIN_PASSCODE "Код доступа в админку" "$PREV_ADMIN_PASSCODE"
+else
+  echo "Придумайте свой, не оставляйте пустым и не используйте значение из тестового окружения."
+  ask ADMIN_PASSCODE "Код доступа в админку"
+fi
 
 echo ""
-echo "Почта для Let's Encrypt — на неё пришлют уведомление, если сертификат prival.pro не продлится сам."
-echo "Понадобится позже, для scripts/init-letsencrypt.sh — можно указать любую рабочую почту."
-ask CERTBOT_EMAIL "Email для Let's Encrypt"
+echo "HTTPS необязателен — сайт и так работает по обычному HTTP. Если сертификат пока не нужен"
+echo "(например, DNS ещё не настроен), просто нажмите Enter — оставите пустым, впишете позже в .env."
+echo "Если понадобится, эта почта нужна только для scripts/init-letsencrypt.sh — на неё Let's Encrypt"
+echo "пришлёт уведомление, если сертификат не продлится сам."
+read -r -p "Email для Let's Encrypt (необязательно) [${PREV_CERTBOT_EMAIL}]: " CERTBOT_EMAIL
+CERTBOT_EMAIL="${CERTBOT_EMAIL:-$PREV_CERTBOT_EMAIL}"
 
 echo ""
-echo "Генерирую служебные секреты автоматически (вводить их не нужно):"
-echo " - JWT_SECRET — подписывает сессию входа в админку;"
-echo " - ENCRYPTION_KEY — шифрует пароль приложения почты перед сохранением в БД (задаётся в /admin/settings)."
-JWT_SECRET="$(openssl rand -base64 48 | tr -d '\n')"
-ENCRYPTION_KEY="$(openssl rand -base64 32 | tr -d '\n' | tr '+/' '-_')"
+if [ -n "$PREV_JWT_SECRET" ] && [ -n "$PREV_ENCRYPTION_KEY" ]; then
+  echo "Сохраняю прежние JWT_SECRET и ENCRYPTION_KEY — их смена сбросит все сессии входа в админку"
+  echo "и сделает нечитаемым уже сохранённый в БД пароль приложения почты (/admin/settings)."
+  JWT_SECRET="$PREV_JWT_SECRET"
+  ENCRYPTION_KEY="$PREV_ENCRYPTION_KEY"
+else
+  echo "Генерирую служебные секреты автоматически (вводить их не нужно):"
+  echo " - JWT_SECRET — подписывает сессию входа в админку;"
+  echo " - ENCRYPTION_KEY — шифрует пароль приложения почты перед сохранением в БД (задаётся в /admin/settings)."
+  JWT_SECRET="$(openssl rand -base64 48 | tr -d '\n')"
+  ENCRYPTION_KEY="$(openssl rand -base64 32 | tr -d '\n' | tr '+/' '-_')"
+fi
 
 cat > "$ENV_FILE" <<EOF
 # Сгенерировано scripts/deploy.sh $(date '+%Y-%m-%d %H:%M:%S')
@@ -135,8 +188,15 @@ echo "Сайт для гостей:  http://prival.pro"
 echo "Админ-панель:     http://prival.pro/admin"
 echo "API / документация: http://prival.pro:${BACKEND_PORT}/docs"
 echo ""
-echo "Проверьте, что DNS prival.pro и www.prival.pro уже указывает на этот сервер, затем включите HTTPS:"
-echo "  ./scripts/init-letsencrypt.sh"
+if [ -n "$CERTBOT_EMAIL" ]; then
+  echo "HTTPS не обязателен, сайт уже работает по HTTP. Захотите включить — проверьте, что DNS"
+  echo "prival.pro и www.prival.pro указывает на этот сервер, и запустите:"
+  echo "  ./scripts/init-letsencrypt.sh"
+else
+  echo "HTTPS сейчас не настроен (email для Let's Encrypt не указан) — это нормально, сайт и так"
+  echo "работает по HTTP. Когда понадобится: впишите CERTBOT_EMAIL в .env и запустите"
+  echo "  ./scripts/init-letsencrypt.sh"
+fi
 echo ""
 echo "После входа в админку (код: тот, что вы задали выше) откройте «Настройки» и укажите"
 echo "почту-отправитель, пароль приложения и адрес для уведомлений о заказах."
