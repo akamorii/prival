@@ -3,10 +3,15 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
-        VITE_ADMIN_PASSCODE: ${VITE_ADMIN_PASSCODE:-privaladmin}
+        # Пусто = относительные /api, /uploads — nginx этого же контейнера проксирует их на backend.
+        VITE_API_URL: ${VITE_API_URL:-}
     ports:
-      - '${FRONTEND_PORT:-8080}:80'
+      - '${FRONTEND_PORT:-80}:80'
+      - '${FRONTEND_SSL_PORT:-443}:443'
+    volumes:
+      - ./frontend/nginx/active.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
     depends_on:
       - backend
     restart: unless-stopped
@@ -17,10 +22,12 @@ services:
     environment:
       DATABASE_URL: postgresql://${DB_USER:-privalcafe}:${DB_PASSWORD:-privalcafe}@db:5432/${DB_NAME:-privalcafe}
       JWT_SECRET: ${JWT_SECRET:-change-me-jwt-secret}
-      ADMIN_PASSCODE: ${VITE_ADMIN_PASSCODE:-privaladmin}
+      ADMIN_PASSCODE: ${ADMIN_PASSCODE:-privaladmin}
       ENCRYPTION_KEY: '${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env, see .env.example}'
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://prival.pro,https://www.prival.pro,http://prival.pro,http://www.prival.pro}
     ports:
+      # Не обязателен для работы сайта (nginx проксирует /api по внутренней сети) —
+      # оставлен открытым для прямого захода в /docs при отладке. Можно закомментировать.
       - '${BACKEND_PORT:-8000}:8000'
     volumes:
       - uploads-data:/app/uploads
@@ -40,6 +47,18 @@ services:
       - '${DB_PORT:-5432}:5432'
     restart: unless-stopped
 
+  # Выпуск и продление сертификата Let's Encrypt для prival.pro.
+  # Первый сертификат — через scripts/init-letsencrypt.sh, дальше этот сервис
+  # сам продляет его раз в 12 часов; frontend сам перечитывает сертификат (см. docker-entrypoint.sh).
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: >-
+      /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
+    restart: unless-stopped
+
   # ---------------------------------------------------------------------
   # Задел на будущее (см. ТЗ п.20): онлайн-оплата, Telegram-уведомления,
   # кухонный экран (KDS), печать чеков, интеграция с кассой — добавляются
@@ -49,3 +68,5 @@ services:
 volumes:
   db-data:
   uploads-data:
+  certbot-etc:
+  certbot-www:

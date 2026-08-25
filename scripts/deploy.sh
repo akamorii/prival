@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Развёртывание «Привал» на сервере: создаёт/обновляет .env и поднимает docker compose.
+# Развёртывание «Привал» на сервере под домен prival.pro: создаёт/обновляет .env и поднимает docker compose.
 # Запуск: ./scripts/deploy.sh
+# HTTPS этот скрипт не настраивает — для этого после первого запуска (и когда DNS
+# prival.pro будет указывать на этот сервер) выполните ./scripts/init-letsencrypt.sh
 
 set -euo pipefail
 
@@ -19,7 +21,7 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "=================================="
-echo " Привал — развёртывание на сервере"
+echo " Привал — развёртывание на prival.pro"
 echo "=================================="
 
 # Спрашивает значение с описанием. Если задан $3 (значение по умолчанию) — можно просто нажать Enter.
@@ -57,21 +59,14 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 echo ""
-echo "Домен или публичный IP сервера, по которому сайт будет открываться в браузере гостей и админа."
-echo "Например: cafe-privl.ru — если есть домен, или 203.0.113.10 — если только IP. Без 'http://' и без порта."
-ask PUBLIC_HOST "Адрес сервера"
+echo "Порты на хосте. Для обычной работы под доменом prival.pro (https://prival.pro без порта в адресе)"
+echo "оставьте порт фронтенда 80 — жмите Enter. Меняйте только если порт занят другим сервисом на сервере."
+ask FRONTEND_PORT "Порт фронтенда (HTTP)" "80"
+ask FRONTEND_SSL_PORT "Порт фронтенда (HTTPS)" "443"
 
 echo ""
-echo "Протокол. Если для сайта уже настроен SSL-сертификат (сайт открывается по https) — введите https,"
-echo "если сертификата пока нет — http (можно будет переключиться позже, перезапустив этот скрипт)."
-ask SCHEME "Протокол (http/https)" "http"
-
-echo ""
-echo "Порт, на котором сайт для гостей будет слушать на сервере (снаружи, через этот порт заходят гости и админ)."
-ask FRONTEND_PORT "Порт фронтенда" "8080"
-
-echo ""
-echo "Порт бэкенда (API). Обычно можно оставить как есть — он не показывается гостям напрямую."
+echo "Порт бэкенда (API). Наружу не обязателен — nginx проксирует /api внутри docker-сети,"
+echo "открыт только для удобства прямого захода в /docs при отладке."
 ask BACKEND_PORT "Порт бэкенда" "8000"
 
 echo ""
@@ -91,6 +86,11 @@ echo "Придумайте свой, не оставляйте пустым и �
 ask ADMIN_PASSCODE "Код доступа в админку"
 
 echo ""
+echo "Почта для Let's Encrypt — на неё пришлют уведомление, если сертификат prival.pro не продлится сам."
+echo "Понадобится позже, для scripts/init-letsencrypt.sh — можно указать любую рабочую почту."
+ask CERTBOT_EMAIL "Email для Let's Encrypt"
+
+echo ""
 echo "Генерирую служебные секреты автоматически (вводить их не нужно):"
 echo " - JWT_SECRET — подписывает сессию входа в админку;"
 echo " - ENCRYPTION_KEY — шифрует пароль приложения почты перед сохранением в БД (задаётся в /admin/settings)."
@@ -102,6 +102,7 @@ cat > "$ENV_FILE" <<EOF
 # Не публикуйте этот файл — в нём пароли и секретные ключи.
 
 FRONTEND_PORT=${FRONTEND_PORT}
+FRONTEND_SSL_PORT=${FRONTEND_SSL_PORT}
 BACKEND_PORT=${BACKEND_PORT}
 DB_PORT=${DB_PORT}
 
@@ -109,14 +110,16 @@ DB_USER=${DB_USER}
 DB_PASSWORD=${DB_PASSWORD}
 DB_NAME=${DB_NAME}
 
-# Адрес бэкенда — вшивается в собранный фронтенд на этапе сборки,
-# браузер гостя должен уметь до него достучаться напрямую.
-VITE_API_URL=${SCHEME}://${PUBLIC_HOST}:${BACKEND_PORT}
-VITE_ADMIN_PASSCODE=${ADMIN_PASSCODE}
+# Пусто — фронтенд ходит в API по относительному пути, nginx проксирует на backend сам.
+VITE_API_URL=
+
+ADMIN_PASSCODE=${ADMIN_PASSCODE}
 
 JWT_SECRET=${JWT_SECRET}
 ENCRYPTION_KEY=${ENCRYPTION_KEY}
-CORS_ORIGINS=${SCHEME}://${PUBLIC_HOST}:${FRONTEND_PORT}
+CORS_ORIGINS=https://prival.pro,https://www.prival.pro,http://prival.pro,http://www.prival.pro
+
+CERTBOT_EMAIL=${CERTBOT_EMAIL}
 EOF
 
 echo ""
@@ -126,11 +129,14 @@ docker compose up -d --build
 
 echo ""
 echo "=================================="
-echo " Готово"
+echo " Готово (пока по HTTP)"
 echo "=================================="
-echo "Сайт для гостей:  ${SCHEME}://${PUBLIC_HOST}:${FRONTEND_PORT}"
-echo "Админ-панель:     ${SCHEME}://${PUBLIC_HOST}:${FRONTEND_PORT}/admin"
-echo "API / документация: ${SCHEME}://${PUBLIC_HOST}:${BACKEND_PORT}/docs"
+echo "Сайт для гостей:  http://prival.pro"
+echo "Админ-панель:     http://prival.pro/admin"
+echo "API / документация: http://prival.pro:${BACKEND_PORT}/docs"
+echo ""
+echo "Проверьте, что DNS prival.pro и www.prival.pro уже указывает на этот сервер, затем включите HTTPS:"
+echo "  ./scripts/init-letsencrypt.sh"
 echo ""
 echo "После входа в админку (код: тот, что вы задали выше) откройте «Настройки» и укажите"
 echo "почту-отправитель, пароль приложения и адрес для уведомлений о заказах."
