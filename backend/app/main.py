@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
-from .routers import auth, categories, dishes, orders, reports, settings as settings_router, uploads
+from .routers import auth, categories, dishes, info_fields, orders, reports, settings as settings_router, uploads
 from .routers.uploads import UPLOAD_DIR
 
 app = FastAPI(title="Привал API")
@@ -19,6 +19,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(categories.router)
 app.include_router(dishes.router)
+app.include_router(info_fields.router)
 app.include_router(orders.router)
 app.include_router(reports.router)
 app.include_router(settings_router.router)

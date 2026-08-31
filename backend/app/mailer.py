@@ -28,9 +28,27 @@ def resolve_smtp_host(email: str) -> tuple[str, int]:
     return f"smtp.{domain}", 465
 
 
+FULFILLMENT_LABELS: dict[models.FulfillmentType, str] = {
+    models.FulfillmentType.delivery: "Доставка",
+    models.FulfillmentType.pickup: "Самовывоз",
+    models.FulfillmentType.dine_in: "За столом",
+}
+
+PAYMENT_LABELS: dict[models.PaymentMethod, str] = {
+    models.PaymentMethod.cash: "Наличными",
+    models.PaymentMethod.card: "Картой",
+}
+
+
 def format_order_email(order: models.Order) -> str:
     local_time = order.created_at.strftime("%H:%M")
-    lines = [f"Новый заказ №{order.id}", "", f"Стол: №{order.table_number}", f"Время: {local_time}", "", "Заказ:", ""]
+    lines = [f"Новый заказ №{order.id}", "", f"Получение: {FULFILLMENT_LABELS[order.fulfillment_type]}"]
+    if order.fulfillment_type == models.FulfillmentType.dine_in:
+        lines.append(f"Стол: №{order.table_number}")
+    if order.fulfillment_type == models.FulfillmentType.delivery and order.address:
+        lines.append(f"Адрес: {order.address}")
+    lines.append(f"Оплата: {PAYMENT_LABELS[order.payment_method]}")
+    lines += [f"Время: {local_time}", "", "Заказ:", ""]
     for item in order.items:
         line_total = item.price * item.quantity
         lines.append(f"{item.name} × {item.quantity} — {line_total} ₽")
@@ -56,7 +74,7 @@ def send_order_email(db: Session, order: models.Order) -> None:
     host, port = resolve_smtp_host(settings_row.smtp_email)
 
     message = MIMEText(format_order_email(order), "plain", "utf-8")
-    message["Subject"] = f"Новый заказ №{order.id} — стол №{order.table_number}"
+    message["Subject"] = f"Новый заказ №{order.id} — {FULFILLMENT_LABELS[order.fulfillment_type]}"
     message["From"] = settings_row.smtp_email
     message["To"] = settings_row.notify_email
     message["Date"] = formatdate(localtime=True)

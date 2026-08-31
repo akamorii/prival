@@ -11,6 +11,7 @@ import { MenuManagementPage } from '../pages/admin/MenuManagementPage/MenuManage
 import { TablesQrPage } from '../pages/admin/TablesQrPage/TablesQrPage';
 import { ReportsPage } from '../pages/admin/ReportsPage/ReportsPage';
 import { SettingsPage } from '../pages/admin/SettingsPage/SettingsPage';
+import { InfoFieldsPage } from '../pages/admin/InfoFieldsPage/InfoFieldsPage';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: 'tables', element: <TablesQrPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'info', element: <InfoFieldsPage /> },
     ],
   },
 ]);

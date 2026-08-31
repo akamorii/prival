@@ -1,6 +1,20 @@
 .header {
+  position: relative;
   padding: 20px 16px 16px;
   text-align: center;
+}
+
+.infoBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-chip-bg);
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 16px;
+  line-height: 1;
 }
 
 .logo {

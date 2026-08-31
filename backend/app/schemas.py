@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from .models import OrderStatus
+from .models import FulfillmentType, OrderStatus, PaymentMethod
 
 
 class CamelModel(BaseModel):
@@ -34,6 +34,7 @@ class DishIn(CamelModel):
     weight: str = ""
     price: int = 0
     photo_url: str | None = Field(default=None, alias="photoUrl")
+    photo_url_2: str | None = Field(default=None, alias="photoUrl2")
     available: bool = True
 
 
@@ -46,11 +47,28 @@ class DishOut(CamelModel):
     weight: str
     price: int
     photo_url: str | None = Field(default=None, alias="photoUrl")
+    photo_url_2: str | None = Field(default=None, alias="photoUrl2")
     available: bool
 
 
 class AvailabilityIn(CamelModel):
     available: bool
+
+
+# ---- info fields ----
+
+
+class InfoFieldIn(CamelModel):
+    label: str
+    value: str = ""
+    sort_order: int = Field(default=0, alias="sortOrder")
+
+
+class InfoFieldOut(CamelModel):
+    id: str
+    label: str
+    value: str
+    sort_order: int = Field(alias="sortOrder")
 
 
 # ---- orders ----
@@ -71,18 +89,24 @@ class OrderItemOut(CamelModel):
 
 
 class CreateOrderIn(CamelModel):
-    table_number: int = Field(alias="tableNumber")
+    table_number: int | None = Field(default=None, alias="tableNumber")
     items: list[OrderItemIn]
     comment: str = ""
+    fulfillment_type: FulfillmentType = Field(alias="fulfillmentType")
+    payment_method: PaymentMethod = Field(alias="paymentMethod")
+    address: str | None = None
 
 
 class OrderOut(CamelModel):
     id: int
-    table_number: int = Field(alias="tableNumber")
+    table_number: int | None = Field(default=None, alias="tableNumber")
     items: list[OrderItemOut]
     total: int
     comment: str
     status: OrderStatus
+    fulfillment_type: FulfillmentType = Field(alias="fulfillmentType")
+    payment_method: PaymentMethod = Field(alias="paymentMethod")
+    address: str | None = None
     created_at: datetime = Field(alias="createdAt")
 
 

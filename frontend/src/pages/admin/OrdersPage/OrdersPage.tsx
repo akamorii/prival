@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Order, OrderStatus } from '../../../shared/types';
-import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from '../../../shared/types';
+import { FULFILLMENT_LABELS, ORDER_STATUS_FLOW, ORDER_STATUS_LABELS, PAYMENT_LABELS } from '../../../shared/types';
 import { fetchOrders, updateOrderStatus } from '../../../shared/api/ordersApi';
 import { formatDateTime, formatPrice } from '../../../shared/lib/format';
 import { StatusBadge } from '../../../shared/ui/Badge/Badge';
@@ -54,7 +54,9 @@ export function OrdersPage() {
               <div>
                 <strong>№{order.id}</strong>
                 <div className={styles.orderMeta}>
-                  Стол №{order.tableNumber} · {formatDateTime(order.createdAt)}
+                  {order.fulfillmentType === 'dine_in' ? `Стол №${order.tableNumber}` : FULFILLMENT_LABELS[order.fulfillmentType]}
+                  {' · '}
+                  {formatDateTime(order.createdAt)}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -65,6 +67,10 @@ export function OrdersPage() {
 
             {expanded && (
               <div className={styles.detail}>
+                <div className={styles.comment}>
+                  Оплата: {PAYMENT_LABELS[order.paymentMethod]}
+                  {order.fulfillmentType === 'delivery' && order.address && ` · Адрес: ${order.address}`}
+                </div>
                 <OrderItemsList items={order.items} />
                 {order.comment && <div className={styles.comment}>Комментарий: {order.comment}</div>}
                 <div className={styles.statusRow}>

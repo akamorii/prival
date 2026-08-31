@@ -96,8 +96,13 @@ export function DishFormModal({ dish, categories, onSave, onDelete, onClose }: D
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Фото (необязательно)</label>
+          <label className={styles.label}>Фото 1 (необязательно)</label>
           <ImageDropzone value={draft.photoUrl} onChange={(url) => update('photoUrl', url)} />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>Фото 2 (необязательно)</label>
+          <ImageDropzone value={draft.photoUrl2} onChange={(url) => update('photoUrl2', url)} />
         </div>
 
         <div className={styles.checkboxRow}>

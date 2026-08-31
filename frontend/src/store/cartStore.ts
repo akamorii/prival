@@ -1,17 +1,23 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Dish, OrderItem } from '../shared/types';
+import type { Dish, FulfillmentType, OrderItem, PaymentMethod } from '../shared/types';
 
 interface CartState {
   tableNumber: number | null;
   items: OrderItem[];
   comment: string;
+  fulfillmentType: FulfillmentType;
+  paymentMethod: PaymentMethod;
+  address: string;
   setTableNumber: (table: number) => void;
   addItem: (dish: Dish, quantity?: number) => void;
   increment: (dishId: string) => void;
   decrement: (dishId: string) => void;
   removeItem: (dishId: string) => void;
   setComment: (comment: string) => void;
+  setFulfillmentType: (type: FulfillmentType) => void;
+  setPaymentMethod: (method: PaymentMethod) => void;
+  setAddress: (address: string) => void;
   clear: () => void;
 }
 
@@ -21,6 +27,9 @@ export const useCartStore = create<CartState>()(
       tableNumber: null,
       items: [],
       comment: '',
+      fulfillmentType: 'dine_in',
+      paymentMethod: 'cash',
+      address: '',
 
       setTableNumber: (table) => set({ tableNumber: table }),
 
@@ -64,7 +73,13 @@ export const useCartStore = create<CartState>()(
 
       setComment: (comment) => set({ comment }),
 
-      clear: () => set({ items: [], comment: '' }),
+      setFulfillmentType: (fulfillmentType) => set({ fulfillmentType }),
+
+      setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
+
+      setAddress: (address) => set({ address }),
+
+      clear: () => set({ items: [], comment: '', address: '' }),
     }),
     { name: 'privalcafe:cart' },
   ),

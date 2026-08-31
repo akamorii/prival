@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Dish } from '../../shared/types';
 import { formatPrice } from '../../shared/lib/format';
-import { DishThumb } from '../../shared/ui/DishThumb/DishThumb';
+import { PhotoCarousel } from '../../shared/ui/PhotoCarousel/PhotoCarousel';
 import { Stepper } from '../../shared/ui/Stepper/Stepper';
 import { Button } from '../../shared/ui/Button/Button';
 import { useCartStore } from '../../store/cartStore';
@@ -25,7 +25,7 @@ export function DishModal({ dish, onClose }: DishModalProps) {
           </button>
         </div>
         <div className={styles.photoWrap}>
-          <DishThumb categoryId={dish.categoryId} photoUrl={dish.photoUrl} size={120} fontSize={52} />
+          <PhotoCarousel categoryId={dish.categoryId} photoUrls={[dish.photoUrl, dish.photoUrl2]} size={120} fontSize={52} />
         </div>
         <div className={styles.name}>{dish.name}</div>
         <div className={styles.weight}>{dish.weight}</div>

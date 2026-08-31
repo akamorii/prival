@@ -9,6 +9,21 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 
 export const ORDER_STATUS_FLOW: OrderStatus[] = ['new', 'accepted', 'ready', 'closed'];
 
+export type FulfillmentType = 'delivery' | 'pickup' | 'dine_in';
+
+export const FULFILLMENT_LABELS: Record<FulfillmentType, string> = {
+  delivery: 'Доставка',
+  pickup: 'Самовывоз',
+  dine_in: 'За столом',
+};
+
+export type PaymentMethod = 'cash' | 'card';
+
+export const PAYMENT_LABELS: Record<PaymentMethod, string> = {
+  cash: 'Наличными',
+  card: 'Картой',
+};
+
 export interface Category {
   id: string;
   name: string;
@@ -24,7 +39,15 @@ export interface Dish {
   weight: string;
   price: number;
   photoUrl?: string;
+  photoUrl2?: string;
   available: boolean;
+}
+
+export interface InfoField {
+  id: string;
+  label: string;
+  value: string;
+  sortOrder: number;
 }
 
 export interface OrderItem {
@@ -36,18 +59,24 @@ export interface OrderItem {
 
 export interface Order {
   id: number;
-  tableNumber: number;
+  tableNumber: number | null;
   items: OrderItem[];
   total: number;
   comment: string;
   status: OrderStatus;
+  fulfillmentType: FulfillmentType;
+  paymentMethod: PaymentMethod;
+  address?: string;
   createdAt: string;
 }
 
 export interface CreateOrderPayload {
-  tableNumber: number;
+  tableNumber: number | null;
   items: OrderItem[];
   comment: string;
+  fulfillmentType: FulfillmentType;
+  paymentMethod: PaymentMethod;
+  address?: string;
 }
 
 export interface DailyStats {

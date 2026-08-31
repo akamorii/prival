@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { Order } from '../../../shared/types';
+import { FULFILLMENT_LABELS, PAYMENT_LABELS, type Order } from '../../../shared/types';
 import { fetchOrder } from '../../../shared/api/ordersApi';
 import { formatPrice } from '../../../shared/lib/format';
 import { OrderItemsList } from '../../../widgets/order-items-list/OrderItemsList';
@@ -47,6 +47,12 @@ export function OrderSuccessPage() {
       </div>
 
       <div className={styles.summary}>
+        <p className={styles.meta}>
+          {FULFILLMENT_LABELS[order.fulfillmentType]}
+          {order.fulfillmentType === 'delivery' && order.address && ` · ${order.address}`}
+          {' · '}
+          {PAYMENT_LABELS[order.paymentMethod]}
+        </p>
         <OrderItemsList items={order.items} />
         <div className={styles.totalRow}>
           <span>Итого</span>

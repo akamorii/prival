@@ -1,0 +1,52 @@
+.hint {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.row,
+.addForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.labelInput {
+  width: 35%;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.valueInput {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 14px;
+}
+
+.iconBtn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-chip-bg);
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 14px;
+}
+
+.addForm {
+  border-style: dashed;
+}

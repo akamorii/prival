@@ -23,6 +23,12 @@ def create_order(payload: CreateOrderIn, db: Session = Depends(get_db)):
     if not payload.items:
         raise HTTPException(status_code=400, detail="Корзина пуста")
 
+    if payload.fulfillment_type == models.FulfillmentType.dine_in and not payload.table_number:
+        raise HTTPException(status_code=400, detail="Укажите номер стола")
+
+    if payload.fulfillment_type == models.FulfillmentType.delivery and not (payload.address or "").strip():
+        raise HTTPException(status_code=400, detail="Укажите адрес доставки")
+
     total = sum(item.price * item.quantity for item in payload.items)
 
     order = models.Order(
@@ -30,6 +36,9 @@ def create_order(payload: CreateOrderIn, db: Session = Depends(get_db)):
         comment=payload.comment,
         total=total,
         status=models.OrderStatus.new,
+        fulfillment_type=payload.fulfillment_type,
+        payment_method=payload.payment_method,
+        address=payload.address,
     )
     db.add(order)
     db.flush()
