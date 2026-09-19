@@ -25,7 +25,7 @@ export function DishModal({ dish, onClose }: DishModalProps) {
           </button>
         </div>
         <div className={styles.photoWrap}>
-          <PhotoCarousel categoryId={dish.categoryId} photoUrls={[dish.photoUrl, dish.photoUrl2]} size={120} fontSize={52} />
+          <PhotoCarousel categoryId={dish.categoryId} photoUrls={[dish.photoUrl, dish.photoUrl2]} size={240} fontSize={52} />
         </div>
         <div className={styles.name}>{dish.name}</div>
         <div className={styles.weight}>{dish.weight}</div>
