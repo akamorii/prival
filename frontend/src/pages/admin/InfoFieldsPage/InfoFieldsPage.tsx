@@ -33,14 +33,26 @@ export function InfoFieldsPage() {
     load();
   };
 
-  const handleAddField = async () => {
-    const label = newLabel.trim();
-    if (!label) return;
-    await saveInfoField({ id: crypto.randomUUID(), label, value: newValue.trim(), sortOrder: fields.length });
-    setNewLabel('');
-    setNewValue('');
-    load();
-  };
+const generateId = (): string => {
+  if (typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  // Fallback для http: getRandomValues работает и в небезопасном контексте
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // версия 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // вариант
+  const h = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+};
+
+const handleAddField = async () => {
+  const label = newLabel.trim();
+  if (!label) return;
+  await saveInfoField({ id: generateId(), label, value: newValue.trim(), sortOrder: fields.length });
+  setNewLabel('');
+  setNewValue('');
+  load();
+};
 
   if (loading) return <p>Загрузка…</p>;
 
