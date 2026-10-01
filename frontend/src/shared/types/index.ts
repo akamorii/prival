@@ -38,8 +38,7 @@ export interface Dish {
   composition: string;
   weight: string;
   price: number;
-  photoUrl?: string;
-  photoUrl2?: string;
+  photoUrls: string[];
   available: boolean;
 }
 
@@ -71,7 +70,6 @@ export interface Order {
 }
 
 export interface CreateOrderPayload {
-  tableNumber: number | null;
   items: OrderItem[];
   comment: string;
   fulfillmentType: FulfillmentType;

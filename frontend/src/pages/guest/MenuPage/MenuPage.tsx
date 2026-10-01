@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Dish } from '../../../shared/types';
 import { useMenu } from '../../../entities/menu/useMenu';
 import { SiteHeader } from '../../../widgets/site-header/SiteHeader';
-import { TableIndicator } from '../../../widgets/table-indicator/TableIndicator';
+import { FulfillmentIndicator } from '../../../widgets/fulfillment-indicator/FulfillmentIndicator';
 import { CategoryNav } from '../../../widgets/category-nav/CategoryNav';
 import { DishCard } from '../../../entities/dish/DishCard';
 import { DishModal } from '../../../widgets/dish-modal/DishModal';
@@ -47,7 +47,7 @@ export function MenuPage() {
   return (
     <div>
       <SiteHeader />
-      <TableIndicator />
+      <FulfillmentIndicator />
       <CategoryNav categories={categories} activeId={activeId} onSelect={handleSelectCategory} />
 
       {categories.map((category) => {

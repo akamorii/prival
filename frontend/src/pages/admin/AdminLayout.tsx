@@ -5,7 +5,7 @@ import styles from './AdminLayout.module.css';
 const NAV_ITEMS = [
   { to: '/admin/orders', label: 'Заказы' },
   { to: '/admin/menu', label: 'Меню' },
-  { to: '/admin/tables', label: 'Столы / QR' },
+  { to: '/admin/tables', label: 'QR-код' },
   { to: '/admin/reports', label: 'Отчёты' },
   { to: '/admin/info', label: 'Информация' },
   { to: '/admin/settings', label: 'Настройки' },

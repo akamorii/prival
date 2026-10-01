@@ -21,24 +21,30 @@
   text-decoration: underline;
 }
 
-.editRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.editWrap {
+  margin: 16px 12px;
+  padding: 12px;
+  background: var(--color-chip-bg);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
 }
 
-.input {
-  width: 64px;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
+.optionRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.optionBtn {
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
   border: 1.5px solid var(--color-border-strong);
   background: var(--color-surface);
-  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.saveBtn {
-  color: var(--color-success);
-  font-weight: 800;
-  font-size: 13px;
-  text-decoration: underline;
+.optionBtnActive {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
 }

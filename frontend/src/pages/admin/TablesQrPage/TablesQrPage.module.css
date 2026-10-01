@@ -1,33 +1,10 @@
 .toolbar {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
   margin-bottom: 20px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-}
-
-.input {
-  width: 100px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--color-border-strong);
-  background: var(--color-surface);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
 }
 

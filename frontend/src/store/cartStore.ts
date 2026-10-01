@@ -3,13 +3,11 @@ import { persist } from 'zustand/middleware';
 import type { Dish, FulfillmentType, OrderItem, PaymentMethod } from '../shared/types';
 
 interface CartState {
-  tableNumber: number | null;
   items: OrderItem[];
   comment: string;
   fulfillmentType: FulfillmentType;
   paymentMethod: PaymentMethod;
   address: string;
-  setTableNumber: (table: number) => void;
   addItem: (dish: Dish, quantity?: number) => void;
   increment: (dishId: string) => void;
   decrement: (dishId: string) => void;
@@ -24,14 +22,11 @@ interface CartState {
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      tableNumber: null,
       items: [],
       comment: '',
-      fulfillmentType: 'dine_in',
+      fulfillmentType: 'pickup',
       paymentMethod: 'cash',
       address: '',
-
-      setTableNumber: (table) => set({ tableNumber: table }),
 
       addItem: (dish, quantity = 1) => {
         const items = get().items;

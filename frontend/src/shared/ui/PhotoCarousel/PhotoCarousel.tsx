@@ -8,19 +8,36 @@ interface PhotoCarouselProps {
   photoUrls: Array<string | null | undefined>;
   size?: number;
   fontSize?: number;
+  showDots?: boolean;
 }
 
-const SWIPE_THRESHOLD = 40;
+const SWIPE_THRESHOLD = 30;
 
-export function PhotoCarousel({ categoryId, photoUrls, size = 120, fontSize = 52 }: PhotoCarouselProps) {
+export function PhotoCarousel({
+  categoryId,
+  photoUrls,
+  size = 120,
+  fontSize = 52,
+  showDots = true,
+}: PhotoCarouselProps) {
   const photos = photoUrls.map(resolvePhotoUrl).filter((url): url is string => Boolean(url));
   const [index, setIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
+  const isSwiping = useRef(false);
 
   const activeIndex = Math.min(index, Math.max(photos.length - 1, 0));
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
     touchStartX.current = e.touches[0].clientX;
+    isSwiping.current = false;
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+    const delta = e.touches[0].clientX - touchStartX.current;
+    if (Math.abs(delta) > 10) {
+      isSwiping.current = true;
+    }
   };
 
   const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
@@ -32,6 +49,11 @@ export function PhotoCarousel({ categoryId, photoUrls, size = 120, fontSize = 52
     } else if (delta < -SWIPE_THRESHOLD) {
       setIndex((i) => Math.min(photos.length - 1, i + 1));
     }
+    // Свайп не должен "досылаться" как клик родительской карточке (не открывать модалку блюда).
+    if (isSwiping.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   return (
@@ -40,6 +62,7 @@ export function PhotoCarousel({ categoryId, photoUrls, size = 120, fontSize = 52
         className={styles.frame}
         style={{ width: size, height: size }}
         onTouchStart={photos.length > 1 ? handleTouchStart : undefined}
+        onTouchMove={photos.length > 1 ? handleTouchMove : undefined}
         onTouchEnd={photos.length > 1 ? handleTouchEnd : undefined}
       >
         {photos.length > 0 ? (
@@ -49,8 +72,13 @@ export function PhotoCarousel({ categoryId, photoUrls, size = 120, fontSize = 52
             {categoryIcon(categoryId)}
           </span>
         )}
+        {photos.length > 1 && (
+          <span className={styles.countBadge}>
+            {activeIndex + 1}/{photos.length}
+          </span>
+        )}
       </div>
-      {photos.length > 1 && (
+      {showDots && photos.length > 1 && (
         <div className={styles.dots}>
           {photos.map((url, i) => (
             <button
@@ -58,7 +86,10 @@ export function PhotoCarousel({ categoryId, photoUrls, size = 120, fontSize = 52
               type="button"
               className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}
               aria-label={`Фото ${i + 1}`}
-              onClick={() => setIndex(i)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIndex(i);
+              }}
             />
           ))}
         </div>

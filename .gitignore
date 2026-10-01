@@ -5,3 +5,4 @@ backend/.venv/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/uploads/
+frontend/nginx/certs/

@@ -33,8 +33,7 @@ def upsert_dish(dish_id: str, payload: DishIn, db: Session = Depends(get_db)):
     dish.composition = payload.composition
     dish.weight = payload.weight
     dish.price = payload.price
-    dish.photo_url = payload.photo_url
-    dish.photo_url_2 = payload.photo_url_2
+    dish.photo_urls = payload.photo_urls
     dish.available = payload.available
 
     db.commit()

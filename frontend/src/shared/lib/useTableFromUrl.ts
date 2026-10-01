@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCartStore } from '../../store/cartStore';
+import type { FulfillmentType } from '../types';
+
+const FULFILLMENT_VALUES: FulfillmentType[] = ['delivery', 'pickup'];
 
 export function useTableFromUrl(): void {
   const [searchParams] = useSearchParams();
-  const setTableNumber = useCartStore((s) => s.setTableNumber);
+  const setFulfillmentType = useCartStore((s) => s.setFulfillmentType);
 
   useEffect(() => {
-    const raw = searchParams.get('table');
-    const table = raw ? Number.parseInt(raw, 10) : NaN;
-    if (Number.isFinite(table) && table > 0) {
-      setTableNumber(table);
+    const fulfillment = searchParams.get('fulfillment');
+    if (fulfillment && (FULFILLMENT_VALUES as string[]).includes(fulfillment)) {
+      setFulfillmentType(fulfillment as FulfillmentType);
     }
-  }, [searchParams, setTableNumber]);
+  }, [searchParams, setFulfillmentType]);
 }

@@ -5,17 +5,15 @@ import { formatPrice } from '../../../shared/lib/format';
 import { createOrder } from '../../../shared/api/ordersApi';
 import { FULFILLMENT_LABELS, PAYMENT_LABELS, type FulfillmentType, type PaymentMethod } from '../../../shared/types';
 import { OrderItemsList } from '../../../widgets/order-items-list/OrderItemsList';
-import { TableIndicator } from '../../../widgets/table-indicator/TableIndicator';
 import { Button } from '../../../shared/ui/Button/Button';
 import styles from './CheckoutPage.module.css';
 
-const FULFILLMENT_OPTIONS: FulfillmentType[] = ['dine_in', 'pickup', 'delivery'];
+const FULFILLMENT_OPTIONS: Extract<FulfillmentType, 'pickup' | 'delivery'>[] = ['pickup', 'delivery'];
 const PAYMENT_OPTIONS: PaymentMethod[] = ['cash', 'card'];
 
 export function CheckoutPage() {
   const navigate = useNavigate();
   const items = useCartStore((s) => s.items);
-  const tableNumber = useCartStore((s) => s.tableNumber);
   const comment = useCartStore((s) => s.comment);
   const setComment = useCartStore((s) => s.setComment);
   const fulfillmentType = useCartStore((s) => s.fulfillmentType);
@@ -36,10 +34,6 @@ export function CheckoutPage() {
       setError('Корзина пуста');
       return;
     }
-    if (fulfillmentType === 'dine_in' && !tableNumber) {
-      setError('Укажите номер стола');
-      return;
-    }
     if (fulfillmentType === 'delivery' && !address.trim()) {
       setError('Укажите адрес доставки');
       return;
@@ -48,7 +42,6 @@ export function CheckoutPage() {
     setSubmitting(true);
     try {
       const order = await createOrder({
-        tableNumber: fulfillmentType === 'dine_in' ? tableNumber : null,
         items,
         comment,
         fulfillmentType,
@@ -87,8 +80,6 @@ export function CheckoutPage() {
             </button>
           ))}
         </div>
-
-        {fulfillmentType === 'dine_in' && <TableIndicator />}
 
         {fulfillmentType === 'delivery' && (
           <>

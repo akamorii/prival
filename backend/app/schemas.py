@@ -33,8 +33,7 @@ class DishIn(CamelModel):
     composition: str = ""
     weight: str = ""
     price: int = 0
-    photo_url: str | None = Field(default=None, alias="photoUrl")
-    photo_url_2: str | None = Field(default=None, alias="photoUrl2")
+    photo_urls: list[str] = Field(default_factory=list, alias="photoUrls")
     available: bool = True
 
 
@@ -46,8 +45,7 @@ class DishOut(CamelModel):
     composition: str
     weight: str
     price: int
-    photo_url: str | None = Field(default=None, alias="photoUrl")
-    photo_url_2: str | None = Field(default=None, alias="photoUrl2")
+    photo_urls: list[str] = Field(default_factory=list, alias="photoUrls")
     available: bool
 
 

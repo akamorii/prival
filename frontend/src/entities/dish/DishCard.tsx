@@ -1,6 +1,6 @@
 import type { Dish } from '../../shared/types';
 import { formatPrice } from '../../shared/lib/format';
-import { DishThumb } from '../../shared/ui/DishThumb/DishThumb';
+import { PhotoCarousel } from '../../shared/ui/PhotoCarousel/PhotoCarousel';
 import { useCartStore } from '../../store/cartStore';
 import styles from './DishCard.module.css';
 
@@ -18,7 +18,7 @@ export function DishCard({ dish, onOpen }: DishCardProps) {
       className={`${styles.card} ${!dish.available ? styles.unavailable : ''}`}
       onClick={() => onOpen(dish)}
     >
-      <DishThumb categoryId={dish.categoryId} photoUrl={dish.photoUrl} />
+      <PhotoCarousel categoryId={dish.categoryId} photoUrls={dish.photoUrls} size={64} fontSize={28} showDots={false} />
       <div className={styles.info}>
         <div className={styles.name}>{dish.name}</div>
         <div className={styles.weight}>{dish.weight}</div>

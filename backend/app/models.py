@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     Text,
 )
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -55,8 +56,7 @@ class Dish(Base):
     composition = Column(Text, nullable=False, default="")
     weight = Column(String, nullable=False, default="")
     price = Column(Integer, nullable=False, default=0)
-    photo_url = Column(String, nullable=True)
-    photo_url_2 = Column(String, nullable=True)
+    photo_urls = Column(ARRAY(String), nullable=False, default=list, server_default="{}")
     available = Column(Boolean, nullable=False, default=True)
     sort_order = Column(Integer, nullable=False, default=0)
 
