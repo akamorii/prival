@@ -42,16 +42,23 @@ setup_https() {
   echo "Включить HTTPS для prival.online сейчас?"
   echo "  1) Let's Encrypt — DNS prival.online и www.prival.online указывают прямо на этот сервер, порт 80 открыт"
   echo "  2) Cloudflare — домен подключён к Cloudflare (оранжевое облако), нужен CF_API_TOKEN"
-  echo "  3) Позже"
+  echo "  3) Свой (купленный) сертификат — файлы .crt/.key уже лежат на сервере"
+  echo "  4) Позже"
   local choice=""
   read -r -p "Выбор [1]: " choice
   case "${choice:-1}" in
     1) ./scripts/init-letsencrypt.sh || echo "Не удалось выпустить сертификат — сайт пока работает по HTTP, исправьте причину и запустите ./scripts/init-letsencrypt.sh" ;;
     2) ./scripts/cloudflare-ssl.sh || echo "Не удалось получить сертификат Cloudflare — сайт пока работает по HTTP, исправьте причину и запустите ./scripts/cloudflare-ssl.sh" ;;
+    3)
+      local ssl_dir=""
+      read -r -p "Папка с файлами сертификата (например ~/ssl): " ssl_dir
+      ssl_dir="${ssl_dir/#\~/$HOME}"
+      ./scripts/install-ssl.sh "$ssl_dir" || echo "Не удалось установить сертификат — сайт пока работает по HTTP, исправьте причину и запустите ./scripts/install-ssl.sh <папка>"
+      ;;
     *)
       echo ""
       echo "HTTPS пока не включён, сайт работает по http://prival.online. Включить позже:"
-      echo "  ./scripts/init-letsencrypt.sh   или   ./scripts/cloudflare-ssl.sh"
+      echo "  ./scripts/init-letsencrypt.sh   или   ./scripts/cloudflare-ssl.sh   или   ./scripts/install-ssl.sh <папка>"
       ;;
   esac
 }
