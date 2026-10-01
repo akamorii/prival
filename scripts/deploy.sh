@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Развёртывание «Привал» на сервере под домен prival.pro: создаёт/обновляет .env и поднимает docker compose.
+# Развёртывание «Привал» на сервере под домен prival.online: создаёт/обновляет .env и поднимает docker compose.
 # Запуск: ./scripts/deploy.sh
-# HTTPS этот скрипт не настраивает — для этого после первого запуска (и когда DNS
-# prival.pro будет указывать на этот сервер) выполните ./scripts/init-letsencrypt.sh
+# В конце предлагает сразу включить HTTPS (Let's Encrypt или Cloudflare).
 
 set -euo pipefail
 
@@ -21,8 +20,41 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 echo "=================================="
-echo " Привал — развёртывание на prival.pro"
+echo " Привал — развёртывание на prival.online"
 echo "=================================="
+
+# Рабочий конфиг nginx не хранится в git. Если его нет — стартуем с HTTP-версии
+# (она нужна и для выпуска сертификата Let's Encrypt); SSL-скрипты потом заменят его.
+# Без этого файла docker смонтировал бы вместо него пустую папку и nginx не запустился бы.
+NGINX_ACTIVE="frontend/nginx/active.conf"
+if [ ! -f "$NGINX_ACTIVE" ]; then
+  cp frontend/nginx/http.conf "$NGINX_ACTIVE"
+fi
+
+# Предлагает включить HTTPS сразу после запуска стека.
+setup_https() {
+  if grep -q "listen 443" "$NGINX_ACTIVE"; then
+    echo ""
+    echo "HTTPS уже включён (frontend/nginx/active.conf). Сайт: https://prival.online"
+    return
+  fi
+  echo ""
+  echo "Включить HTTPS для prival.online сейчас?"
+  echo "  1) Let's Encrypt — DNS prival.online и www.prival.online указывают прямо на этот сервер, порт 80 открыт"
+  echo "  2) Cloudflare — домен подключён к Cloudflare (оранжевое облако), нужен CF_API_TOKEN"
+  echo "  3) Позже"
+  local choice=""
+  read -r -p "Выбор [1]: " choice
+  case "${choice:-1}" in
+    1) ./scripts/init-letsencrypt.sh || echo "Не удалось выпустить сертификат — сайт пока работает по HTTP, исправьте причину и запустите ./scripts/init-letsencrypt.sh" ;;
+    2) ./scripts/cloudflare-ssl.sh || echo "Не удалось получить сертификат Cloudflare — сайт пока работает по HTTP, исправьте причину и запустите ./scripts/cloudflare-ssl.sh" ;;
+    *)
+      echo ""
+      echo "HTTPS пока не включён, сайт работает по http://prival.online. Включить позже:"
+      echo "  ./scripts/init-letsencrypt.sh   или   ./scripts/cloudflare-ssl.sh"
+      ;;
+  esac
+}
 
 # Спрашивает значение с описанием. Если задан $3 (значение по умолчанию) — можно просто нажать Enter.
 ask() {
@@ -64,6 +96,7 @@ if [ -f "$ENV_FILE" ]; then
     echo ""
     echo "Оставляю текущий .env. Пересобираю образы и перезапускаю контейнеры…"
     docker compose up -d --build
+    setup_https
     echo ""
     echo "Готово. Текущие настройки — в файле .env."
     exit 0
@@ -91,7 +124,7 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 echo ""
-echo "Порты на хосте. Для обычной работы под доменом prival.pro (https://prival.pro без порта в адресе)"
+echo "Порты на хосте. Для обычной работы под доменом prival.online (https://prival.online без порта в адресе)"
 echo "оставьте порт фронтенда 80 — жмите Enter. Меняйте только если порт занят другим сервисом на сервере."
 ask FRONTEND_PORT "Порт фронтенда (HTTP)" "$PREV_FRONTEND_PORT"
 ask FRONTEND_SSL_PORT "Порт фронтенда (HTTPS)" "$PREV_FRONTEND_SSL_PORT"
@@ -129,11 +162,9 @@ else
 fi
 
 echo ""
-echo "HTTPS необязателен — сайт и так работает по обычному HTTP. Если сертификат пока не нужен"
-echo "(например, DNS ещё не настроен), просто нажмите Enter — оставите пустым, впишете позже в .env."
-echo "Если понадобится, эта почта нужна только для scripts/init-letsencrypt.sh — на неё Let's Encrypt"
-echo "пришлёт уведомление, если сертификат не продлится сам."
-read -r -p "Email для Let's Encrypt (необязательно) [${PREV_CERTBOT_EMAIL}]: " CERTBOT_EMAIL
+echo "Email для Let's Encrypt — на него придёт уведомление, если сертификат не продлится сам."
+echo "Нужен только для HTTPS через Let's Encrypt; если будете использовать Cloudflare — жмите Enter."
+read -r -p "Email для Let's Encrypt [${PREV_CERTBOT_EMAIL}]: " CERTBOT_EMAIL
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-$PREV_CERTBOT_EMAIL}"
 
 echo ""
@@ -170,7 +201,7 @@ ADMIN_PASSCODE=${ADMIN_PASSCODE}
 
 JWT_SECRET=${JWT_SECRET}
 ENCRYPTION_KEY=${ENCRYPTION_KEY}
-CORS_ORIGINS=https://prival.pro,https://www.prival.pro,http://prival.pro,http://www.prival.pro
+CORS_ORIGINS=https://prival.online,https://www.prival.online
 
 CERTBOT_EMAIL=${CERTBOT_EMAIL}
 EOF
@@ -181,21 +212,19 @@ echo ""
 docker compose up -d --build
 
 echo ""
-echo "=================================="
-echo " Готово (пока по HTTP)"
-echo "=================================="
-echo "Сайт для гостей:  http://prival.pro"
-echo "Админ-панель:     http://prival.pro/admin"
-echo "API / документация: http://prival.pro:${BACKEND_PORT}/docs"
+echo "Контейнеры запущены."
+setup_https
+
 echo ""
-if [ -n "$CERTBOT_EMAIL" ]; then
-  echo "HTTPS не обязателен, сайт уже работает по HTTP. Захотите включить — проверьте, что DNS"
-  echo "prival.pro и www.prival.pro указывает на этот сервер, и запустите:"
-  echo "  ./scripts/init-letsencrypt.sh"
+echo "=================================="
+echo " Готово"
+echo "=================================="
+if grep -q "listen 443" "$NGINX_ACTIVE"; then
+  echo "Сайт для гостей:  https://prival.online"
+  echo "Админ-панель:     https://prival.online/admin"
 else
-  echo "HTTPS сейчас не настроен (email для Let's Encrypt не указан) — это нормально, сайт и так"
-  echo "работает по HTTP. Когда понадобится: впишите CERTBOT_EMAIL в .env и запустите"
-  echo "  ./scripts/init-letsencrypt.sh"
+  echo "Сайт для гостей:  http://prival.online"
+  echo "Админ-панель:     http://prival.online/admin"
 fi
 echo ""
 echo "После входа в админку (код: тот, что вы задали выше) откройте «Настройки» и укажите"

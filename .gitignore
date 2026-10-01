@@ -6,3 +6,6 @@ backend/__pycache__/
 backend/**/__pycache__/
 backend/uploads/
 frontend/nginx/certs/
+# Рабочий конфиг nginx: создаётся из http.conf скриптом deploy.sh,
+# дальше его перезаписывают init-letsencrypt.sh / cloudflare-ssl.sh.
+frontend/nginx/active.conf

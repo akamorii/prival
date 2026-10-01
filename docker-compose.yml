@@ -26,7 +26,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-jwt-secret}
       ADMIN_PASSCODE: ${ADMIN_PASSCODE:-privaladmin}
       ENCRYPTION_KEY: '${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env, see .env.example}'
-      CORS_ORIGINS: ${CORS_ORIGINS:-https://prival.pro,https://www.prival.pro,http://prival.pro,http://www.prival.pro}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://prival.online,https://www.prival.online}
     ports:
       # Не обязателен для работы сайта (nginx проксирует /api по внутренней сети) —
       # оставлен открытым для прямого захода в /docs при отладке. Можно закомментировать.
@@ -49,7 +49,7 @@ services:
       - '${DB_PORT:-5432}:5432'
     restart: unless-stopped
 
-  # Выпуск и продление сертификата Let's Encrypt для prival.pro.
+  # Выпуск и продление сертификата Let's Encrypt для prival.online.
   # Первый сертификат — через scripts/init-letsencrypt.sh, дальше этот сервис
   # сам продляет его раз в 12 часов; frontend сам перечитывает сертификат (см. docker-entrypoint.sh).
   certbot:

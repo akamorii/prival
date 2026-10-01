@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Разовая настройка HTTPS для prival.pro через Let's Encrypt.
+# Разовая настройка HTTPS для prival.online через Let's Encrypt.
 #
 # Запускать один раз на самом сервере, ПОСЛЕ того как:
-#   1) DNS-записи prival.pro и www.prival.pro указывают на этот сервер;
-#   2) на сервере уже поднят стек: docker compose up -d (сайт отвечает по http://prival.pro).
+#   1) DNS-записи prival.online и www.prival.online указывают на этот сервер;
+#   2) на сервере уже поднят стек: docker compose up -d (сайт отвечает по http://prival.online).
 #
 # Использование:
 #   ./scripts/init-letsencrypt.sh            — настоящий сертификат
@@ -15,8 +15,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-DOMAIN="prival.pro"
-WWW_DOMAIN="www.prival.pro"
+DOMAIN="prival.online"
+WWW_DOMAIN="www.prival.online"
 STAGING_FLAG=""
 
 if [[ "${1:-}" == "--staging" ]]; then

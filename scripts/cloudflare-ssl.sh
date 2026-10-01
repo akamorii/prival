@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Настройка HTTPS для prival.pro через Cloudflare — альтернатива Let's Encrypt
+# Настройка HTTPS для prival.online через Cloudflare — альтернатива Let's Encrypt
 # (scripts/init-letsencrypt.sh), без возни с DNS-проверкой и открытым портом 80 наружу.
 #
 # Как это работает: Cloudflare становится прокси перед сайтом и сам выдаёт публичный
@@ -8,12 +8,12 @@
 # этим сервером (режим SSL/TLS = Full (strict) в Cloudflare).
 #
 # Что нужно заранее:
-#   1) Домен prival.pro подключён к Cloudflare (его DNS управляется через Cloudflare —
+#   1) Домен prival.online подключён к Cloudflare (его DNS управляется через Cloudflare —
 #      в дашборде Cloudflare будет написано, на какие NS-серверы переключить домен
 #      у регистратора).
 #   2) API-токен Cloudflare с правом "Zone / SSL and Certificates / Edit" для зоны
-#      prival.pro: dash.cloudflare.com → My Profile → API Tokens → Create Token →
-#      Custom token → добавить это право → ограничить зоной prival.pro.
+#      prival.online: dash.cloudflare.com → My Profile → API Tokens → Create Token →
+#      Custom token → добавить это право → ограничить зоной prival.online.
 #
 # Использование:
 #   CF_API_TOKEN=xxxxx ./scripts/cloudflare-ssl.sh
@@ -24,8 +24,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-DOMAIN="prival.pro"
-WWW_DOMAIN="www.prival.pro"
+DOMAIN="prival.online"
+WWW_DOMAIN="www.prival.online"
 CERTS_DIR="frontend/nginx/certs"
 
 for bin in openssl curl jq; do

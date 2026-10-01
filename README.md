@@ -16,7 +16,7 @@ docker compose up -d --build
 
 Сайт: `http://localhost` (или `http://localhost:8080`, если меняли `FRONTEND_PORT`), админка — `/admin`.
 
-## Продакшен на prival.pro
+## Продакшен на prival.online
 
 На сервере, где уже установлен Docker:
 
@@ -25,23 +25,25 @@ git clone <репозиторий> && cd prival
 ./scripts/deploy.sh
 ```
 
-Скрипт задаст несколько вопросов (с пояснениями, что и зачем) и поднимет весь стек по HTTP — этого достаточно для работы, HTTPS не обязателен.
+Скрипт задаст несколько вопросов (с пояснениями, что и зачем), поднимет стек и в конце предложит включить HTTPS — одним из двух способов:
 
-Когда (и если) понадобится HTTPS — два варианта на выбор:
-
-**Let's Encrypt** (сертификат на сервере, нужен открытый порт 80 и DNS `prival.pro`/`www.prival.pro`, указывающий прямо на сервер):
+**Let's Encrypt** (сертификат на сервере, нужен открытый порт 80 и DNS `prival.online`/`www.prival.online`, указывающий прямо на сервер):
 ```bash
 ./scripts/init-letsencrypt.sh
 ```
 Выпускается и дальше продлевается автоматически.
 
-**Cloudflare** (проще — не нужен ни DNS-A-record-на-сервер, ни открытый порт 80; домен подключается к Cloudflare, а сертификат нужен только для шифрования между Cloudflare и сервером):
+**Cloudflare** (домен подключается к Cloudflare, публичный сертификат выдаёт Cloudflare, а этот нужен только для шифрования между Cloudflare и сервером):
 ```bash
 ./scripts/cloudflare-ssl.sh
 ```
 Нужен API-токен Cloudflare (см. `.env.example`, `CF_API_TOKEN`) и включённый в Cloudflare прокси (оранжевое облако) + режим SSL/TLS «Full (strict)» — скрипт выведет точные шаги в конце.
 
-Домен захардкожен в `frontend/nginx/*.conf` как `prival.pro` — при смене домена поменяйте его там.
+Оба скрипта можно запустить и отдельно, в любой момент после `deploy.sh`. После включения HTTPS `http://` редиректит на `https://`, а сайт отдаёт заголовок HSTS.
+
+Рабочий конфиг nginx — `frontend/nginx/active.conf` — не хранится в git: его создаёт `deploy.sh` (копия `http.conf`), а SSL-скрипты заменяют на `https.conf` / `https-cloudflare.conf`. Поэтому `git pull` на сервере не сбрасывает HTTPS.
+
+Домен захардкожен в `frontend/nginx/*.conf` и `scripts/*.sh` как `prival.online` — при смене домена поменяйте его там (и в `CORS_ORIGINS`).
 
 ## Обновление после изменений в коде
 
